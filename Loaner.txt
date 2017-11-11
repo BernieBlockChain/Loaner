@@ -1,0 +1,56 @@
+pragma solidity ^0.4.0;
+contract Loaner {
+
+address owner;
+struct BorrowerInfo {
+bool recievedLoan;
+uint timeReceived;
+uint loanAttempt;
+}
+mapping(address => BorrowerInfo) loans;
+mapping(address => bool) isBorrower;
+
+function Loaner() public {
+owner = msg.sender;
+}
+
+function loan(address borrower) public isOwner {
+bool isGetLoan = true;
+if(isGetLoan) {
+if(!isBorrower[borrower]) { 
+loans[borrower] = BorrowerInfo(true, now, 1);
+isBorrower[borrower] = true;
+} else { 
+loans[borrower].recievedLoan = true;
+loans[borrower].timeReceived = now;
+loans[borrower].loanAttempt++;
+}
+}
+else {
+}
+}
+
+
+function hasLoan(address borrower) public view onlyBorrower(borrower) returns (bool) {
+return loans[borrower].recievedLoan;
+}
+
+function stopLoan(address borrower) public isOwner onlyBorrower(borrower) {
+loans[borrower].recievedLoan = false;
+}
+
+modifier onlyBorrower(address borrower) {
+if(isBorrower[borrower]) {
+_;
+} else {
+revert();
+}
+}
+
+modifier isOwner {
+if (msg.sender == owner) {
+_;
+}
+}
+
+}
